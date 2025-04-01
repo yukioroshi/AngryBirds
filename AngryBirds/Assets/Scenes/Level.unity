@@ -496,6 +496,10 @@ PrefabInstance:
       propertyPath: trajectoryPointPrefab
       value: 
       objectReference: {fileID: 6504725474949049088, guid: 3aab8dd5727f2ff489b7bb585adc8aa2, type: 3}
+    - target: {fileID: 2630417642289213125, guid: f16af691f73cab348ad50620616b3a90, type: 3}
+      propertyPath: m_SortingOrder
+      value: 101
+      objectReference: {fileID: 0}
     - target: {fileID: 2738546359337243938, guid: f16af691f73cab348ad50620616b3a90, type: 3}
       propertyPath: UIManager
       value: 
@@ -504,6 +508,10 @@ PrefabInstance:
       propertyPath: normalBirdPrefab
       value: 
       objectReference: {fileID: 9108485562512249434, guid: 953f63eb78a34724ebf6d90a112c35a9, type: 3}
+    - target: {fileID: 4871096993530379902, guid: f16af691f73cab348ad50620616b3a90, type: 3}
+      propertyPath: m_SortingOrder
+      value: 102
+      objectReference: {fileID: 0}
     - target: {fileID: 6477136736444826795, guid: f16af691f73cab348ad50620616b3a90, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.240652
