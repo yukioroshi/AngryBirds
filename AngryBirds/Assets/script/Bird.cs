@@ -3,26 +3,26 @@ using UnityEngine;
 public class Bird : MonoBehaviour
 {
     private BirdManager birdManager;
-    private Rigidbody2D rb; // Composant Rigidbody2D permettant la gestion de la physique de l'oiseau
-    private bool isLaunched; // Indique si l'oiseau a été lancé par le lance-pierre
+    private Rigidbody2D rb; 
+    private bool isLaunched; 
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody2D>(); // Récupère le composant Rigidbody2D attaché à l'oiseau
-        birdManager = FindObjectOfType<BirdManager>(); // Trouve automatiquement l'instance du BirdManager dans la scène
+        rb = GetComponent<Rigidbody2D>(); // Bird rigidbody
+        birdManager = FindObjectOfType<BirdManager>();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Vérifie si l'oiseau a été lancé avant de signaler l'atterrissage
+        // Bird launched ?
         if (isLaunched)
         {
-            birdManager.BirdLanded(); // Informe le BirdManager que l'oiseau a atterri après un tir
+            birdManager.BirdLanded(); // Bird landed
         }
     }
 
     public void SetLaunched(bool launched)
     {
-        isLaunched = launched; // Définit l'état de lancement de l'oiseau
+        isLaunched = launched; // Bird launch state
     }
 }

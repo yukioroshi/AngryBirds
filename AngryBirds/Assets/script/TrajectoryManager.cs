@@ -6,55 +6,78 @@ public class TrajectoryManager : MonoBehaviour
     // Instance unique du TrajectoryManager (singleton)
     public static TrajectoryManager Instance { get; private set; }
 
-    [Header("Trajectory")]
-    [SerializeField] private GameObject trajectoryPointPrefab; // Préfabriqué représentant un point de la trajectoire
-    [SerializeField] private int trajectoryPointCount = 30; // Nombre de points affichés pour représenter la trajectoire
-    [SerializeField] private float trajectoryTimeStep = 0.1f; // Intervalle de temps entre chaque point de la trajectoire
 
-    private List<GameObject> trajectoryPoints = new List<GameObject>(); // Liste contenant les points de la trajectoire
+    [SerializeField] private GameObject trajectoryPointPrefab; 
+    [SerializeField] private int trajectoryPointCount = 30; 
+    [SerializeField] private float trajectoryTimeStep = 0.1f;
 
+    private List<GameObject> trajectoryPoints = new List<GameObject>();
+
+    // Called when the script instance is being loaded.
     private void Awake()
     {
-        // Implémentation du pattern Singleton pour s'assurer qu'une seule instance de TrajectoryManager existe
+        // Ensure only one instance of this class exists.
         if (Instance == null)
         {
             Instance = this;
         }
+
+        // Initialize the trajectory points for trajectory visualization.
         InitializeTrajectoryPoints();
     }
 
-    // Initialise et instancie les points de la trajectoire
+    // Creates and initializes trajectory points for visualizing the bird's path.
     private void InitializeTrajectoryPoints()
     {
         for (int i = 0; i < trajectoryPointCount; i++)
         {
-            GameObject point = Instantiate(trajectoryPointPrefab); // Crée un point à partir du préfabriqué
-            point.SetActive(false); // Désactive le point au départ
-            trajectoryPoints.Add(point); // Ajoute le point à la liste
+            // Instantiate a trajectory point prefab.
+            GameObject point = Instantiate(trajectoryPointPrefab);
+
+            // Initially deactivate the point.
+            point.SetActive(false);
+
+            // Add the point to the trajectoryPoints list.
+            trajectoryPoints.Add(point);
         }
     }
 
-    // Affiche la trajectoire en calculant les positions des points à partir de la force appliquée
+    // Displays the predicted trajectory of the bird before launching.
     public void DisplayTrajectory(Rigidbody2D bird, Vector3 currentPosition, Vector3 centerPosition, float force)
     {
-        if (bird == null) return; // Vérifie si l'oiseau est null pour éviter les erreurs
+        // If the bird object is missing, do nothing.
+        if (bird == null) return;
 
-        Vector3 initialVelocity = (centerPosition - currentPosition).normalized * force; // Calcule la vitesse initiale de l'oiseau
-        Vector3 currentPos = bird.transform.position; // Position de départ de la trajectoire
-        Vector3 currentVelocity = initialVelocity; // Stocke la vitesse actuelle de l'oiseau
+        // Calculate the initial velocity based on the pull direction and force.
+        Vector3 initialVelocity = (centerPosition - currentPosition).normalized * force;
 
+        // Start from the bird's current position.
+        Vector3 currentPos = bird.transform.position;
+
+        // Set the initial velocity.
+        Vector3 currentVelocity = initialVelocity;
+
+        // Iterate through each trajectory point to update its position.
         for (int i = 0; i < trajectoryPointCount; i++)
         {
-            trajectoryPoints[i].transform.position = currentPos; // Met à jour la position du point
-            trajectoryPoints[i].SetActive(true); // Active le point pour l'afficher
-            currentPos += currentVelocity * trajectoryTimeStep; // Mise à jour de la position en fonction de la vitesse
-            currentVelocity += (Vector3)Physics2D.gravity * trajectoryTimeStep; // Applique la gravité sur la vitesse
+            // Position the trajectory point at the calculated position.
+            trajectoryPoints[i].transform.position = currentPos;
+
+            // Activate the point to make it visible.
+            trajectoryPoints[i].SetActive(true);
+
+            // Update the position for the next point using velocity.
+            currentPos += currentVelocity * trajectoryTimeStep;
+
+            // Apply gravity to simulate realistic motion.
+            currentVelocity += (Vector3)Physics2D.gravity * trajectoryTimeStep;
         }
     }
 
-    // Cache la trajectoire en désactivant tous les points
+    // Hides the trajectory points when they are no longer needed.
     public void HideTrajectory()
     {
+        // Deactivate all trajectory points.
         foreach (var point in trajectoryPoints)
         {
             point.SetActive(false);

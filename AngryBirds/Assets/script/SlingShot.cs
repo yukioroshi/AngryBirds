@@ -2,114 +2,122 @@ using UnityEngine;
 
 public class SlingShot : MonoBehaviour
 {
-    [Header("Slingshot")]
-    [SerializeField] private LineRenderer[] lineRenderers; // Contient les LineRenderers représentant les élastiques de la fronde
-    [SerializeField] private Transform[] stripPositions; // Points d'attache des élastiques (gauche et droite)
-    [SerializeField] private Transform centerPosition; // Position centrale de la fronde (d'où part l'oiseau)
-    [SerializeField] private Transform idlePosition; // Position par défaut de l'élastique quand il est relâché
-    [SerializeField] private Collider2D slingshotCollider; // Collider de la fronde pour éviter les interactions après un tir
-    [SerializeField] private float bottomBoundary; // Limite basse pour éviter que l'oiseau ne soit trop bas avant d'être tiré
-    [SerializeField] private float maxLenght; // Longueur maximale à laquelle on peut tirer l'élastique
-    [SerializeField] private float force; // Force de propulsion de l'oiseau au lâcher de l'élastique
+    
+    [SerializeField] private LineRenderer[] lineRenderers; 
+    [SerializeField] private Transform[] stripPositions; 
+    [SerializeField] private Transform centerPosition; 
+    [SerializeField] private Transform idlePosition; 
+    [SerializeField] private Collider2D slingshotCollider; 
+    [SerializeField] private float bottomBoundary; 
+    [SerializeField] private float maxLenght; 
+    [SerializeField] private float force; 
 
-    [Header("Birds")]
+    
     [SerializeField] private BirdManager birdManager;
-    [SerializeField] private float birdPositionOffsetX; // Décalage horizontal appliqué à la position de l'oiseau dans l'élastique
-    [SerializeField] private float birdPositionOffsetY; // Décalage vertical appliqué à la position de l'oiseau dans l'élastique
+    [SerializeField] private float birdPositionOffsetX; 
+    [SerializeField] private float birdPositionOffsetY; 
 
-    private Vector3 currentPosition; // Position actuelle de la souris convertie en coordonnées du monde
-    private bool isMouseDown; // Indique si la souris est en train d'être maintenue enfoncée
+    private Vector3 currentPosition; 
+    private bool isMouseDown;
 
+    // Called when the script starts.
     private void Start()
     {
-        // Initialise les LineRenderers pour afficher les élastiques de la fronde
-        lineRenderers[0].positionCount = 2; // Chaque élastique est une ligne avec 2 points
+        // Set the number of positions for both slingshot line renderers.
+        lineRenderers[0].positionCount = 2;
         lineRenderers[1].positionCount = 2;
 
-        // Place les extrémités des élastiques aux points d'attache initiaux
+        // Set the initial position of the slingshot strings to their anchor points.
         lineRenderers[0].SetPosition(0, stripPositions[0].position);
         lineRenderers[1].SetPosition(0, stripPositions[1].position);
 
-        // Initialise les oiseaux (généralement en instanciant le premier oiseau)
+        // Initialize the birds at the start of the game.
         birdManager.InitializeBirds();
     }
 
+    // Called once per frame to handle player input and updates.
     private void Update()
     {
-        if (isMouseDown) // Si la souris est maintenue enfoncée
+        if (isMouseDown) // Check if the player is holding the mouse button.
         {
-            // Récupère la position de la souris en pixels et la convertit en coordonnées monde
+            // Get the mouse position in screen space and convert it to world space.
             Vector3 mousePosition = Input.mousePosition;
-            mousePosition.z = 10; // Définir une profondeur pour la conversion en 3D
+            mousePosition.z = 10; // Depth value to ensure proper conversion.
             currentPosition = Camera.main.ScreenToWorldPoint(mousePosition);
 
-            // Calcule la position limitée de l'élastique en fonction de la longueur max
+            // Limit the bird's position within the allowed radius around the center.
             currentPosition = centerPosition.position + Vector3.ClampMagnitude(currentPosition - centerPosition.position, maxLenght);
 
-            // Empêche l'élastique d'aller trop bas (évite que l'oiseau ne passe sous une certaine limite)
+            // Restrict the bird's vertical movement within the bottom boundary.
             currentPosition.y = Mathf.Clamp(currentPosition.y, bottomBoundary, currentPosition.y);
 
-            // Met à jour la position des élastiques
+            // Update the slingshot bands' positions.
             SetStrips(currentPosition);
 
-            // Ajoutez les offsets ici
+            // Calculate the applied force based on the pull distance.
             Vector3 offsetPosition = currentPosition + new Vector3(birdPositionOffsetX, birdPositionOffsetY, 0);
             float appliedForce = (centerPosition.position - offsetPosition).magnitude * force;
-            // Affiche la trajectoire prévue de l'oiseau
+
+            // Display the predicted trajectory based on the applied force.
             TrajectoryManager.Instance.DisplayTrajectory(birdManager.GetCurrentBird(), offsetPosition, centerPosition.position, appliedForce);
 
-            // Active le collider de l'oiseau (s'il était désactivé auparavant)
+            // Enable the bird's collider so it can interact with the environment after launch.
             birdManager.EnableCollider();
         }
-        else
+        else // If the mouse button is released, reset the slingshot bands.
         {
             ResetStrips();
             TrajectoryManager.Instance.HideTrajectory();
         }
     }
 
+    // Called when the player clicks on the slingshot.
     private void OnMouseDown()
     {
-        isMouseDown = true; // Détecte que la souris a été pressée
+        isMouseDown = true; // Register that the mouse is being held down.
     }
 
+    // Called when the player releases the mouse button.
     private void OnMouseUp()
     {
-        isMouseDown = false; // Détecte que la souris a été relâchée
-        Shoot(); // Tire l'oiseau
+        isMouseDown = false; // Register that the mouse button is released.
+        Shoot(); // Launch the bird.
     }
 
-    // Réinitialise la position des élastiques à l'état initial
+    // Resets the slingshot bands to their idle position.
     private void ResetStrips()
     {
-        currentPosition = idlePosition.position; // Remet la position de l'élastique à l'idle
-        SetStrips(currentPosition);
+        currentPosition = idlePosition.position; // Set the current position to idle.
+        SetStrips(currentPosition); // Update the visual position of the slingshot bands.
     }
 
-    // Met à jour la position des élastiques et la position de l'oiseau
+    // Updates the slingshot bands' positions based on the bird's position.
     private void SetStrips(Vector3 position)
     {
-        lineRenderers[0].SetPosition(1, position); // Déplace le deuxième point de l'élastique gauche
-        lineRenderers[1].SetPosition(1, position); // Déplace le deuxième point de l'élastique droit
+        lineRenderers[0].SetPosition(1, position); // Update the left band.
+        lineRenderers[1].SetPosition(1, position); // Update the right band.
 
-        // Met à jour la position de l'oiseau avec un décalage défini
+        // Update the bird's position relative to the slingshot.
         birdManager.UpdateBirdPosition(position, centerPosition.position, birdPositionOffsetX, birdPositionOffsetY);
     }
 
-    // Tire l'oiseau en appliquant la force calculée
+    // Launches the bird when the player releases the slingshot.
     private void Shoot()
     {
-        birdManager.Shoot(currentPosition, centerPosition.position, force); // Applique la force de tir à l'oiseau
+        // Apply the shooting force to the bird.
+        birdManager.Shoot(currentPosition, centerPosition.position, force);
 
-        slingshotCollider.enabled = false; // Désactive le collider pour éviter les interactions inutiles après le tir
+        // Disable the slingshot collider to prevent further interactions.
+        slingshotCollider.enabled = false;
 
-        Invoke("NextBird", 2); // Prépare le prochain oiseau après un délai de 2 secondes
+        // Schedule the creation of the next bird after 2 seconds.
+        Invoke("NextBird", 2);
     }
 
-    // Prépare le prochain oiseau après le tir
+    // Creates the next bird and reactivates the slingshot.
     private void NextBird()
     {
-        birdManager.CreateBird(); // Génère un nouvel oiseau
-        slingshotCollider.enabled = true; // Réactive le collider pour le prochain tir
+        birdManager.CreateBird(); // Spawn a new bird.
+        slingshotCollider.enabled = true; // Re-enable the slingshot for the next shot.
     }
 }

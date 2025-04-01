@@ -75,7 +75,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 100
   m_Sprite: {fileID: 21300000, guid: b0dff36caa5546648aad749b207ff578, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -178,5 +178,4 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d35cb62d4e49c3f4a9921d7dc837f865, type: 3}
   - {fileID: 21300000, guid: 735cdb4fd48bc274eb0e6c4f69de8315, type: 3}
   damageMultiplier: 3
-  floatingScoreTextPrefab: {fileID: 5092476132273285415, guid: e60c8b3aaf6edb047893133492b6da66, type: 3}
   nbpoints: 100
